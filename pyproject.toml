@@ -1,0 +1,13 @@
+[project]
+name = "celeste"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "celeste-ai>=0.11.0",
+    "idun-agent-engine>=0.5.2",
+    "langchain-community>=0.4.1",
+    "pypdf>=6.10.0",
+    "langgraph-prebuilt==1.0.8",
+]
