@@ -4,8 +4,8 @@ from langchain_core.documents import Document
 from langgraph.graph import StateGraph, START, END
 from idun_agent_engine.prompts import get_prompt
 
+from celeste_adapter import CelesteEmbeddings, call_celeste
 from state import GraphState, InputState, OutputState
-from celeste_providers import CelesteEmbeddings, call_celeste
 
 
 REWRITE_PROMPT = get_prompt("rewrite_prompt")
