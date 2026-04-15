@@ -6,7 +6,7 @@
       "exports": [
         "DetectPII"
       ],
-      "installed_at": "2026-04-13T14:05:01.768333+00:00",
+      "installed_at": "2026-04-15T14:37:48.695931+00:00",
       "package_name": "guardrails-grhub-detect-pii"
     }
   }

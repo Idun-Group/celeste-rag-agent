@@ -1,7 +1,7 @@
 import celeste
 from langchain_core.embeddings.embeddings import Embeddings
 
-EMBEDDING_MODEL = "gemini-embedding-2-preview"
+EMBEDDING_MODEL = "gemini-embedding-001"
 EMBEDDING_DIMENSIONS = 768
 GENERATION_MODEL = "gemini-3-flash-preview"
 GENERATION_MAX_TOKENS = 2048
