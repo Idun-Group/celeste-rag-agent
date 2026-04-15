@@ -1,7 +1,7 @@
 [project]
-name = "celeste"
+name = "celeste-rag-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "RAG agent example built with Celeste AI, LangGraph, and Idun Agent Platform."
 readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [

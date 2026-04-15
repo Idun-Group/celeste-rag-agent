@@ -10,7 +10,7 @@ Building agents is not the hard part anymore. The hard part is everything around
 
 We built a RAG agent to show how [Celeste AI](https://withceleste.com) and [Idun Agent Platform](https://cloud.idunplatform.com) take those problems off the table.
 
-The source code is on [GitHub](https://github.com/...).
+The source code is on [GitHub](https://github.com/Idun-Group/celeste-rag-agent).
 
 ## Celeste AI simplifies the model layer
 
@@ -23,7 +23,6 @@ Here's what the LLM call looks like in our agent:
 ```python
 response = await celeste.text.generate(
     prompt="...",
-    provider="google",
     model="gemini-3-flash-preview",
 )
 ```
@@ -42,7 +41,7 @@ Same function. Same response shape. No new imports, no new client libraries, no 
 
 ```python
 vecs = await celeste.text.embed(
-    model="gemini-embedding-001",
+    model="gemini-embedding-2-preview",
     text="...",
     dimensions=768,
 )
@@ -88,7 +87,7 @@ rewrite_query → retrieve → generate
 
 ## The code
 
-Three files, nothing else.
+Three files of application logic.
 
 ### state.py
 
@@ -115,44 +114,62 @@ class OutputState(TypedDict):
 
 `InputState` has only `messages`, which tells Idun to show a chat interface. `OutputState` has only `answer`, so the response comes back as text.
 
-### celeste_providers.py
+### celeste_adapter.py
 
 ```python
 import celeste
 from langchain_core.embeddings.embeddings import Embeddings
 
+EMBEDDING_MODEL = "gemini-embedding-2-preview"
+EMBEDDING_DIMENSIONS = 768
+GENERATION_MODEL = "gemini-3-flash-preview"
+
 
 class CelesteEmbeddings(Embeddings):
     def embed_documents(self, texts):
-        raise NotImplementedError("Use aembed_documents")
+        response = celeste.text.sync.embed(
+            text=texts,
+            model=EMBEDDING_MODEL,
+            dimensions=EMBEDDING_DIMENSIONS,
+        )
+        return response.content
 
     def embed_query(self, text):
-        raise NotImplementedError("Use aembed_query")
+        response = celeste.text.sync.embed(
+            text=text,
+            model=EMBEDDING_MODEL,
+            dimensions=EMBEDDING_DIMENSIONS,
+        )
+        return response.content
 
     async def aembed_query(self, text):
-        vecs = await celeste.text.embed(
-            model="gemini-embedding-001",
+        response = await celeste.text.embed(
             text=text,
-            dimensions=768,
+            model=EMBEDDING_MODEL,
+            dimensions=EMBEDDING_DIMENSIONS,
         )
-        return vecs.content
+        return response.content
 
     async def aembed_documents(self, texts):
-        return [await self.aembed_query(t) for t in texts]
+        response = await celeste.text.embed(
+            text=texts,
+            model=EMBEDDING_MODEL,
+            dimensions=EMBEDDING_DIMENSIONS,
+        )
+        return response.content
 
 
 async def call_celeste(prompt):
     response = await celeste.text.generate(
         prompt,
-        provider="google",
-        model="gemini-3-flash-preview",
+        model=GENERATION_MODEL,
         max_tokens=2048,
         temperature=0.7,
     )
     return response.content
 ```
 
-This is the entire model layer. Every LLM and embedding call in the agent goes through these two functions. If we swap providers, this file is the only thing that changes.
+This is the entire model layer. Every LLM and embedding call in the agent goes through this small adapter module. If we swap providers, this file is the only thing that changes.
 
 ### main.py
 
@@ -164,7 +181,7 @@ from langgraph.graph import StateGraph, START, END
 from idun_agent_engine.prompts import get_prompt
 
 from state import GraphState, InputState, OutputState
-from celeste_providers import CelesteEmbeddings, call_celeste
+from celeste_adapter import CelesteEmbeddings, call_celeste
 
 REWRITE_PROMPT = get_prompt("rewrite_prompt")
 RAG_PROMPT = get_prompt("basic_rag")
@@ -245,11 +262,11 @@ Once logged in, click on the agent pane and create an agent.
 Fill out the graph definition. If you cloned the repo and `cd` into it, you'll find this structure:
 
 ```
-celeste/
-  main.py                # the graph (exports `graph`)
-  state.py               # InputState, GraphState, OutputState
-  celeste_providers.py   # CelesteEmbeddings + call_celeste
-  docs/                  # the HR PDFs
+celeste-rag-agent/
+  main.py              # the graph (exports `graph`)
+  state.py             # InputState, GraphState, OutputState
+  celeste_adapter.py   # CelesteEmbeddings + call_celeste
+  docs/                # the HR PDFs
 ```
 
 The graph definition field tells the engine where to find your `StateGraph`. The format is `path/to/file.py:variable_name`. In our case, the graph is exported as `graph` at the bottom of `main.py`, so the graph definition is:
@@ -316,10 +333,10 @@ The agent cross-referenced her CDI contract and the 2024-2027 company agreement 
 
 The point of this project wasn't the RAG pipeline itself. RAG is a well-understood pattern. The point was how little friction there was in building and deploying it.
 
-Celeste meant we didn't write any provider-specific code. The model layer is two functions in one file. When we want to evaluate a different model, we change a string and run the agent again. No migration, no new SDK, no refactoring.
+Celeste meant we didn't write any provider-specific code. The model layer is a small adapter module. When we want to evaluate a different model, we change a string and run the agent again. No migration, no new SDK, no refactoring.
 
 Idun meant we didn't build any infrastructure. The same graph that works locally is the one running in production, with prompts managed in the UI, observability plugged in, and an API endpoint ready for frontends or messaging integrations.
 
 The agent itself is three files of actual logic. Everything else is handled.
 
-Try it yourself with [Celeste AI](https://pypi.org/project/celeste-ai/) and [Idun Cloud](https://cloud.idunplatform.com). The source code is on [GitHub](https://github.com/...).
+Try it yourself with [Celeste AI](https://pypi.org/project/celeste-ai/) and [Idun Cloud](https://cloud.idunplatform.com). The source code is on [GitHub](https://github.com/Idun-Group/celeste-rag-agent).
