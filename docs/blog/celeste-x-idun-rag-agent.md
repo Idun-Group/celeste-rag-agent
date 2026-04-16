@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://withceleste.com"><img src="../images/celeste-logo.png" alt="Celeste AI" height="80" /></a>
+  <a href="https://withceleste.com"><img src="../images/celeste-logo.svg" alt="Celeste AI" height="80" /></a>
   &nbsp;&nbsp;&nbsp;&nbsp;✕&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://cloud.idunplatform.com"><img src="../images/idun-logo.png" alt="Idun Agent Platform" height="80" /></a>
 </p>
